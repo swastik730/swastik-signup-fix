@@ -43,8 +43,13 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+function FieldError({ children }: { children: React.ReactNode }) {
+  return <p className="mt-1 text-[11px] font-semibold text-destructive">{children}</p>;
+}
+
 const inputClass =
   "h-12 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none focus:border-primary";
+
 const inputErrorClass =
   "h-12 w-full rounded-xl border border-destructive bg-background px-3 text-sm outline-none";
 
