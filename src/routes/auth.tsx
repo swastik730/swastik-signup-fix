@@ -45,6 +45,20 @@ export const Route = createFileRoute("/auth")({
 
 const inputClass =
   "h-12 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none focus:border-primary";
+const inputErrorClass =
+  "h-12 w-full rounded-xl border border-destructive bg-background px-3 text-sm outline-none";
+
+/** true = free, false = taken, null = check unavailable (offline etc.). */
+async function checkUsernameFree(id: string): Promise<boolean | null> {
+  const rpc = supabase.rpc as unknown as (
+    fn: string,
+    args: Record<string, unknown>,
+  ) => Promise<{ data: boolean | null; error: unknown }>;
+  const { data, error } = await rpc("username_available", { _username: id });
+  if (error || typeof data !== "boolean") return null;
+  return data;
+}
+
 
 function AuthPage() {
   const navigate = useNavigate();
