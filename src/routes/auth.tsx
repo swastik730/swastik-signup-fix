@@ -59,6 +59,8 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [nameStatus, setNameStatus] = useState<"idle" | "checking" | "free" | "taken">("idle");
 
   const target = safeRedirect(redirect);
 
@@ -66,10 +68,59 @@ function AuthPage() {
     if (ready && user) void navigate({ to: target, replace: true });
   }, [ready, user, target, navigate]);
 
+  // Live "is this username free?" check while signing up (debounced).
+  useEffect(() => {
+    if (mode !== "signup") return setNameStatus("idle");
+    const id = normalizeUsername(username);
+    if (usernameError(id)) return setNameStatus("idle");
+    setNameStatus("checking");
+    let active = true;
+    const timer = setTimeout(() => {
+      void checkUsernameFree(id).then((free) => {
+        if (active) setNameStatus(free === null ? "idle" : free ? "free" : "taken");
+      });
+    }, 450);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [username, mode]);
+
   function switchMode(next: "signin" | "signup" | "forgot") {
     setMode(next);
     setError(null);
     setInfo(null);
+    setFieldErrors({});
+  }
+
+  /** Validates the fields visible in the current mode; returns true when clean. */
+  function validate(id: string): boolean {
+    const next: Record<string, string> = {};
+
+    if (mode === "signin") {
+      if (!id) next["username"] = "Username daaliye.";
+      if (!password) next["password"] = "Password daaliye.";
+    } else {
+      const uErr = usernameError(id);
+      if (uErr) next["username"] = uErr;
+      else if (mode === "signup" && nameStatus === "taken") {
+        next["username"] = "Yeh username pehle se le liya gaya hai — dusra try kijiye.";
+      }
+      const pErr = passwordError(password, id);
+      if (pErr) next["password"] = mode === "forgot" ? `Naya password: ${pErr.toLowerCase()}` : pErr;
+      if (!answer.trim()) {
+        next["answer"] =
+          mode === "signup"
+            ? "Secret answer daaliye — password bhoolne par yahi kaam aayega."
+            : "Secret answer daaliye.";
+      }
+      if (mode === "signup" && name.trim() && name.trim().length < 2) {
+        next["name"] = "Naam kam se kam 2 characters ka ho.";
+      }
+    }
+
+    setFieldErrors(next);
+    return Object.keys(next).length === 0;
   }
 
   async function submit(e: React.FormEvent) {
@@ -78,17 +129,11 @@ function AuthPage() {
     setInfo(null);
 
     const id = username.trim();
-    if (!id) return setError("Username daaliye.");
-
-    if (mode !== "signin" && !isValidUsername(id)) {
-      return setError("Username 3-20 characters ka ho — sirf letters, numbers, . aur _");
-    }
+    if (!validate(id)) return;
 
     setBusy(true);
     try {
       if (mode === "forgot") {
-        if (!answer.trim()) return setError("Secret answer daaliye.");
-        if (password.length < 6) return setError("Naya password kam se kam 6 characters ka ho.");
         const rpc = supabase.rpc as unknown as (
           fn: string,
           args: Record<string, unknown>,
@@ -108,11 +153,16 @@ function AuthPage() {
       }
 
       if (mode === "signup") {
-        if (password.length < 6) return setError("Password kam se kam 6 characters ka ho.");
-        if (!answer.trim()) return setError("Secret answer daaliye — password bhoolne par yahi kaam aayega.");
+        const free = await checkUsernameFree(normalizeUsername(id));
+        if (free === false) {
+          setNameStatus("taken");
+          setFieldErrors({ username: "Yeh username pehle se le liya gaya hai — dusra try kijiye." });
+          return;
+        }
         const { data, error: err } = await supabase.auth.signUp({
           email: identifierToEmail(id),
           password,
+
           options: {
             data: {
               name: name.trim() || normalizeUsername(id),
