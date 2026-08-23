@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CloudUpload, Loader2, ShieldCheck } from "lucide-react";
+import { CheckCircle2, CloudUpload, Loader2, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { BrandMark } from "@/components/AppShell";
 import { useSession } from "@/lib/auth";
@@ -8,9 +8,11 @@ import {
   RECOVERY_QUESTIONS,
   hashAnswer,
   identifierToEmail,
-  isValidUsername,
   normalizeUsername,
+  passwordError,
+  usernameError,
 } from "@/lib/username";
+
 
 /** Only same-origin relative paths are accepted as a post-login destination. */
 function safeRedirect(value: unknown): string {
