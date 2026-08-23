@@ -101,8 +101,12 @@ const offlineClient = {
  * Import this instead of the generated client in app code.
  */
 export const supabase: Client = new Proxy({} as Client, {
-  get(_target, prop, receiver) {
-    const client = resolveClient();
-    return Reflect.get(client ?? offlineClient, prop, receiver);
+  get(_target, prop) {
+    const target = resolveClient() ?? offlineClient;
+    const value = Reflect.get(target as object, prop);
+    // Bind methods to the real client so destructured calls like
+    // `const rpc = supabase.rpc; rpc(...)` keep their `this` context.
+    return typeof value === "function" ? value.bind(target) : value;
   },
 });
+
