@@ -10,33 +10,366 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AchievementsRouteImport } from './routes/achievements'
+import { Route as AnalysisRouteImport } from './routes/analysis'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BookmarksRouteImport } from './routes/bookmarks'
+import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as MoreRouteImport } from './routes/more'
+import { Route as NcertRouteImport } from './routes/ncert'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as OwnerRouteImport } from './routes/owner'
+import { Route as PracticeRouteImport } from './routes/practice'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProgressRouteImport } from './routes/progress'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as LearnIndexRouteImport } from './routes/learn.index'
+import { Route as LearnSubjectIdRouteImport } from './routes/learn.$subjectId'
+import { Route as OwnerIndexRouteImport } from './routes/owner.index'
+import { Route as OwnerAdsRouteImport } from './routes/owner.ads'
+import { Route as OwnerAuditRouteImport } from './routes/owner.audit'
+import { Route as OwnerContentRouteImport } from './routes/owner.content'
+import { Route as OwnerErrorsRouteImport } from './routes/owner.errors'
+import { Route as OwnerNcertRouteImport } from './routes/owner.ncert'
+import { Route as OwnerRolesRouteImport } from './routes/owner.roles'
+import { Route as QuizSubjectIdRouteImport } from './routes/quiz.$subjectId'
+import { Route as TestsIndexRouteImport } from './routes/tests.index'
+import { Route as TestsRunRouteImport } from './routes/tests.run'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AchievementsRoute = AchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalysisRoute = AnalysisRouteImport.update({
+  id: '/analysis',
+  path: '/analysis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookmarksRoute = BookmarksRouteImport.update({
+  id: '/bookmarks',
+  path: '/bookmarks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoreRoute = MoreRouteImport.update({
+  id: '/more',
+  path: '/more',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NcertRoute = NcertRouteImport.update({
+  id: '/ncert',
+  path: '/ncert',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerRoute = OwnerRouteImport.update({
+  id: '/owner',
+  path: '/owner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PracticeRoute = PracticeRouteImport.update({
+  id: '/practice',
+  path: '/practice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgressRoute = ProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnIndexRoute = LearnIndexRouteImport.update({
+  id: '/learn/',
+  path: '/learn/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnSubjectIdRoute = LearnSubjectIdRouteImport.update({
+  id: '/learn/$subjectId',
+  path: '/learn/$subjectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerIndexRoute = OwnerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OwnerRoute,
+} as any)
+const OwnerAdsRoute = OwnerAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
+  getParentRoute: () => OwnerRoute,
+} as any)
+const OwnerAuditRoute = OwnerAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => OwnerRoute,
+} as any)
+const OwnerContentRoute = OwnerContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => OwnerRoute,
+} as any)
+const OwnerErrorsRoute = OwnerErrorsRouteImport.update({
+  id: '/errors',
+  path: '/errors',
+  getParentRoute: () => OwnerRoute,
+} as any)
+const OwnerNcertRoute = OwnerNcertRouteImport.update({
+  id: '/ncert',
+  path: '/ncert',
+  getParentRoute: () => OwnerRoute,
+} as any)
+const OwnerRolesRoute = OwnerRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => OwnerRoute,
+} as any)
+const QuizSubjectIdRoute = QuizSubjectIdRouteImport.update({
+  id: '/quiz/$subjectId',
+  path: '/quiz/$subjectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestsIndexRoute = TestsIndexRouteImport.update({
+  id: '/tests/',
+  path: '/tests/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestsRunRoute = TestsRunRouteImport.update({
+  id: '/tests/run',
+  path: '/tests/run',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/achievements': typeof AchievementsRoute
+  '/analysis': typeof AnalysisRoute
+  '/auth': typeof AuthRoute
+  '/bookmarks': typeof BookmarksRoute
+  '/calendar': typeof CalendarRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/more': typeof MoreRoute
+  '/ncert': typeof NcertRoute
+  '/notifications': typeof NotificationsRoute
+  '/owner': typeof OwnerRouteWithChildren
+  '/practice': typeof PracticeRoute
+  '/profile': typeof ProfileRoute
+  '/progress': typeof ProgressRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/learn/$subjectId': typeof LearnSubjectIdRoute
+  '/owner/ads': typeof OwnerAdsRoute
+  '/owner/audit': typeof OwnerAuditRoute
+  '/owner/content': typeof OwnerContentRoute
+  '/owner/errors': typeof OwnerErrorsRoute
+  '/owner/ncert': typeof OwnerNcertRoute
+  '/owner/roles': typeof OwnerRolesRoute
+  '/quiz/$subjectId': typeof QuizSubjectIdRoute
+  '/tests/run': typeof TestsRunRoute
+  '/learn/': typeof LearnIndexRoute
+  '/owner/': typeof OwnerIndexRoute
+  '/tests/': typeof TestsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/achievements': typeof AchievementsRoute
+  '/analysis': typeof AnalysisRoute
+  '/auth': typeof AuthRoute
+  '/bookmarks': typeof BookmarksRoute
+  '/calendar': typeof CalendarRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/more': typeof MoreRoute
+  '/ncert': typeof NcertRoute
+  '/notifications': typeof NotificationsRoute
+  '/practice': typeof PracticeRoute
+  '/profile': typeof ProfileRoute
+  '/progress': typeof ProgressRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/learn/$subjectId': typeof LearnSubjectIdRoute
+  '/owner/ads': typeof OwnerAdsRoute
+  '/owner/audit': typeof OwnerAuditRoute
+  '/owner/content': typeof OwnerContentRoute
+  '/owner/errors': typeof OwnerErrorsRoute
+  '/owner/ncert': typeof OwnerNcertRoute
+  '/owner/roles': typeof OwnerRolesRoute
+  '/quiz/$subjectId': typeof QuizSubjectIdRoute
+  '/tests/run': typeof TestsRunRoute
+  '/learn': typeof LearnIndexRoute
+  '/owner': typeof OwnerIndexRoute
+  '/tests': typeof TestsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/achievements': typeof AchievementsRoute
+  '/analysis': typeof AnalysisRoute
+  '/auth': typeof AuthRoute
+  '/bookmarks': typeof BookmarksRoute
+  '/calendar': typeof CalendarRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/more': typeof MoreRoute
+  '/ncert': typeof NcertRoute
+  '/notifications': typeof NotificationsRoute
+  '/owner': typeof OwnerRouteWithChildren
+  '/practice': typeof PracticeRoute
+  '/profile': typeof ProfileRoute
+  '/progress': typeof ProgressRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/learn/$subjectId': typeof LearnSubjectIdRoute
+  '/owner/ads': typeof OwnerAdsRoute
+  '/owner/audit': typeof OwnerAuditRoute
+  '/owner/content': typeof OwnerContentRoute
+  '/owner/errors': typeof OwnerErrorsRoute
+  '/owner/ncert': typeof OwnerNcertRoute
+  '/owner/roles': typeof OwnerRolesRoute
+  '/quiz/$subjectId': typeof QuizSubjectIdRoute
+  '/tests/run': typeof TestsRunRoute
+  '/learn/': typeof LearnIndexRoute
+  '/owner/': typeof OwnerIndexRoute
+  '/tests/': typeof TestsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/achievements'
+    | '/analysis'
+    | '/auth'
+    | '/bookmarks'
+    | '/calendar'
+    | '/leaderboard'
+    | '/more'
+    | '/ncert'
+    | '/notifications'
+    | '/owner'
+    | '/practice'
+    | '/profile'
+    | '/progress'
+    | '/reset-password'
+    | '/learn/$subjectId'
+    | '/owner/ads'
+    | '/owner/audit'
+    | '/owner/content'
+    | '/owner/errors'
+    | '/owner/ncert'
+    | '/owner/roles'
+    | '/quiz/$subjectId'
+    | '/tests/run'
+    | '/learn/'
+    | '/owner/'
+    | '/tests/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/achievements'
+    | '/analysis'
+    | '/auth'
+    | '/bookmarks'
+    | '/calendar'
+    | '/leaderboard'
+    | '/more'
+    | '/ncert'
+    | '/notifications'
+    | '/practice'
+    | '/profile'
+    | '/progress'
+    | '/reset-password'
+    | '/learn/$subjectId'
+    | '/owner/ads'
+    | '/owner/audit'
+    | '/owner/content'
+    | '/owner/errors'
+    | '/owner/ncert'
+    | '/owner/roles'
+    | '/quiz/$subjectId'
+    | '/tests/run'
+    | '/learn'
+    | '/owner'
+    | '/tests'
+  id:
+    | '__root__'
+    | '/'
+    | '/achievements'
+    | '/analysis'
+    | '/auth'
+    | '/bookmarks'
+    | '/calendar'
+    | '/leaderboard'
+    | '/more'
+    | '/ncert'
+    | '/notifications'
+    | '/owner'
+    | '/practice'
+    | '/profile'
+    | '/progress'
+    | '/reset-password'
+    | '/learn/$subjectId'
+    | '/owner/ads'
+    | '/owner/audit'
+    | '/owner/content'
+    | '/owner/errors'
+    | '/owner/ncert'
+    | '/owner/roles'
+    | '/quiz/$subjectId'
+    | '/tests/run'
+    | '/learn/'
+    | '/owner/'
+    | '/tests/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AchievementsRoute: typeof AchievementsRoute
+  AnalysisRoute: typeof AnalysisRoute
+  AuthRoute: typeof AuthRoute
+  BookmarksRoute: typeof BookmarksRoute
+  CalendarRoute: typeof CalendarRoute
+  LeaderboardRoute: typeof LeaderboardRoute
+  MoreRoute: typeof MoreRoute
+  NcertRoute: typeof NcertRoute
+  NotificationsRoute: typeof NotificationsRoute
+  OwnerRoute: typeof OwnerRouteWithChildren
+  PracticeRoute: typeof PracticeRoute
+  ProfileRoute: typeof ProfileRoute
+  ProgressRoute: typeof ProgressRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  LearnSubjectIdRoute: typeof LearnSubjectIdRoute
+  QuizSubjectIdRoute: typeof QuizSubjectIdRoute
+  TestsRunRoute: typeof TestsRunRoute
+  LearnIndexRoute: typeof LearnIndexRoute
+  TestsIndexRoute: typeof TestsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +381,234 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/achievements': {
+      id: '/achievements'
+      path: '/achievements'
+      fullPath: '/achievements'
+      preLoaderRoute: typeof AchievementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analysis': {
+      id: '/analysis'
+      path: '/analysis'
+      fullPath: '/analysis'
+      preLoaderRoute: typeof AnalysisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bookmarks': {
+      id: '/bookmarks'
+      path: '/bookmarks'
+      fullPath: '/bookmarks'
+      preLoaderRoute: typeof BookmarksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/more': {
+      id: '/more'
+      path: '/more'
+      fullPath: '/more'
+      preLoaderRoute: typeof MoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ncert': {
+      id: '/ncert'
+      path: '/ncert'
+      fullPath: '/ncert'
+      preLoaderRoute: typeof NcertRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner': {
+      id: '/owner'
+      path: '/owner'
+      fullPath: '/owner'
+      preLoaderRoute: typeof OwnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/practice': {
+      id: '/practice'
+      path: '/practice'
+      fullPath: '/practice'
+      preLoaderRoute: typeof PracticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/progress': {
+      id: '/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof ProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/': {
+      id: '/learn/'
+      path: '/learn'
+      fullPath: '/learn/'
+      preLoaderRoute: typeof LearnIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/$subjectId': {
+      id: '/learn/$subjectId'
+      path: '/learn/$subjectId'
+      fullPath: '/learn/$subjectId'
+      preLoaderRoute: typeof LearnSubjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/': {
+      id: '/owner/'
+      path: '/'
+      fullPath: '/owner/'
+      preLoaderRoute: typeof OwnerIndexRouteImport
+      parentRoute: typeof OwnerRoute
+    }
+    '/owner/ads': {
+      id: '/owner/ads'
+      path: '/ads'
+      fullPath: '/owner/ads'
+      preLoaderRoute: typeof OwnerAdsRouteImport
+      parentRoute: typeof OwnerRoute
+    }
+    '/owner/audit': {
+      id: '/owner/audit'
+      path: '/audit'
+      fullPath: '/owner/audit'
+      preLoaderRoute: typeof OwnerAuditRouteImport
+      parentRoute: typeof OwnerRoute
+    }
+    '/owner/content': {
+      id: '/owner/content'
+      path: '/content'
+      fullPath: '/owner/content'
+      preLoaderRoute: typeof OwnerContentRouteImport
+      parentRoute: typeof OwnerRoute
+    }
+    '/owner/errors': {
+      id: '/owner/errors'
+      path: '/errors'
+      fullPath: '/owner/errors'
+      preLoaderRoute: typeof OwnerErrorsRouteImport
+      parentRoute: typeof OwnerRoute
+    }
+    '/owner/ncert': {
+      id: '/owner/ncert'
+      path: '/ncert'
+      fullPath: '/owner/ncert'
+      preLoaderRoute: typeof OwnerNcertRouteImport
+      parentRoute: typeof OwnerRoute
+    }
+    '/owner/roles': {
+      id: '/owner/roles'
+      path: '/roles'
+      fullPath: '/owner/roles'
+      preLoaderRoute: typeof OwnerRolesRouteImport
+      parentRoute: typeof OwnerRoute
+    }
+    '/quiz/$subjectId': {
+      id: '/quiz/$subjectId'
+      path: '/quiz/$subjectId'
+      fullPath: '/quiz/$subjectId'
+      preLoaderRoute: typeof QuizSubjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tests/': {
+      id: '/tests/'
+      path: '/tests'
+      fullPath: '/tests/'
+      preLoaderRoute: typeof TestsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tests/run': {
+      id: '/tests/run'
+      path: '/tests/run'
+      fullPath: '/tests/run'
+      preLoaderRoute: typeof TestsRunRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface OwnerRouteChildren {
+  OwnerAdsRoute: typeof OwnerAdsRoute
+  OwnerAuditRoute: typeof OwnerAuditRoute
+  OwnerContentRoute: typeof OwnerContentRoute
+  OwnerErrorsRoute: typeof OwnerErrorsRoute
+  OwnerNcertRoute: typeof OwnerNcertRoute
+  OwnerRolesRoute: typeof OwnerRolesRoute
+  OwnerIndexRoute: typeof OwnerIndexRoute
+}
+
+const OwnerRouteChildren: OwnerRouteChildren = {
+  OwnerAdsRoute: OwnerAdsRoute,
+  OwnerAuditRoute: OwnerAuditRoute,
+  OwnerContentRoute: OwnerContentRoute,
+  OwnerErrorsRoute: OwnerErrorsRoute,
+  OwnerNcertRoute: OwnerNcertRoute,
+  OwnerRolesRoute: OwnerRolesRoute,
+  OwnerIndexRoute: OwnerIndexRoute,
+}
+
+const OwnerRouteWithChildren = OwnerRoute._addFileChildren(OwnerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AchievementsRoute: AchievementsRoute,
+  AnalysisRoute: AnalysisRoute,
+  AuthRoute: AuthRoute,
+  BookmarksRoute: BookmarksRoute,
+  CalendarRoute: CalendarRoute,
+  LeaderboardRoute: LeaderboardRoute,
+  MoreRoute: MoreRoute,
+  NcertRoute: NcertRoute,
+  NotificationsRoute: NotificationsRoute,
+  OwnerRoute: OwnerRouteWithChildren,
+  PracticeRoute: PracticeRoute,
+  ProfileRoute: ProfileRoute,
+  ProgressRoute: ProgressRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  LearnSubjectIdRoute: LearnSubjectIdRoute,
+  QuizSubjectIdRoute: QuizSubjectIdRoute,
+  TestsRunRoute: TestsRunRoute,
+  LearnIndexRoute: LearnIndexRoute,
+  TestsIndexRoute: TestsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
