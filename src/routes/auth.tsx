@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CloudUpload, Loader2, ShieldCheck } from "lucide-react";
+import { CheckCircle2, CloudUpload, Loader2, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { BrandMark } from "@/components/AppShell";
 import { useSession } from "@/lib/auth";
@@ -8,9 +8,11 @@ import {
   RECOVERY_QUESTIONS,
   hashAnswer,
   identifierToEmail,
-  isValidUsername,
   normalizeUsername,
+  passwordError,
+  usernameError,
 } from "@/lib/username";
+
 
 /** Only same-origin relative paths are accepted as a post-login destination. */
 function safeRedirect(value: unknown): string {
@@ -41,8 +43,27 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+function FieldError({ children }: { children: React.ReactNode }) {
+  return <p className="mt-1 text-[11px] font-semibold text-destructive">{children}</p>;
+}
+
 const inputClass =
   "h-12 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none focus:border-primary";
+
+const inputErrorClass =
+  "h-12 w-full rounded-xl border border-destructive bg-background px-3 text-sm outline-none";
+
+/** true = free, false = taken, null = check unavailable (offline etc.). */
+async function checkUsernameFree(id: string): Promise<boolean | null> {
+  const rpc = supabase.rpc as unknown as (
+    fn: string,
+    args: Record<string, unknown>,
+  ) => Promise<{ data: boolean | null; error: unknown }>;
+  const { data, error } = await rpc("username_available", { _username: id });
+  if (error || typeof data !== "boolean") return null;
+  return data;
+}
+
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -57,6 +78,8 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [nameStatus, setNameStatus] = useState<"idle" | "checking" | "free" | "taken">("idle");
 
   const target = safeRedirect(redirect);
 
@@ -64,10 +87,59 @@ function AuthPage() {
     if (ready && user) void navigate({ to: target, replace: true });
   }, [ready, user, target, navigate]);
 
+  // Live "is this username free?" check while signing up (debounced).
+  useEffect(() => {
+    if (mode !== "signup") return setNameStatus("idle");
+    const id = normalizeUsername(username);
+    if (usernameError(id)) return setNameStatus("idle");
+    setNameStatus("checking");
+    let active = true;
+    const timer = setTimeout(() => {
+      void checkUsernameFree(id).then((free) => {
+        if (active) setNameStatus(free === null ? "idle" : free ? "free" : "taken");
+      });
+    }, 450);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [username, mode]);
+
   function switchMode(next: "signin" | "signup" | "forgot") {
     setMode(next);
     setError(null);
     setInfo(null);
+    setFieldErrors({});
+  }
+
+  /** Validates the fields visible in the current mode; returns true when clean. */
+  function validate(id: string): boolean {
+    const next: Record<string, string> = {};
+
+    if (mode === "signin") {
+      if (!id) next["username"] = "Username daaliye.";
+      if (!password) next["password"] = "Password daaliye.";
+    } else {
+      const uErr = usernameError(id);
+      if (uErr) next["username"] = uErr;
+      else if (mode === "signup" && nameStatus === "taken") {
+        next["username"] = "Yeh username pehle se le liya gaya hai — dusra try kijiye.";
+      }
+      const pErr = passwordError(password, id);
+      if (pErr) next["password"] = mode === "forgot" ? `Naya password: ${pErr.toLowerCase()}` : pErr;
+      if (!answer.trim()) {
+        next["answer"] =
+          mode === "signup"
+            ? "Secret answer daaliye — password bhoolne par yahi kaam aayega."
+            : "Secret answer daaliye.";
+      }
+      if (mode === "signup" && name.trim() && name.trim().length < 2) {
+        next["name"] = "Naam kam se kam 2 characters ka ho.";
+      }
+    }
+
+    setFieldErrors(next);
+    return Object.keys(next).length === 0;
   }
 
   async function submit(e: React.FormEvent) {
@@ -76,17 +148,11 @@ function AuthPage() {
     setInfo(null);
 
     const id = username.trim();
-    if (!id) return setError("Username daaliye.");
-
-    if (mode !== "signin" && !isValidUsername(id)) {
-      return setError("Username 3-20 characters ka ho — sirf letters, numbers, . aur _");
-    }
+    if (!validate(id)) return;
 
     setBusy(true);
     try {
       if (mode === "forgot") {
-        if (!answer.trim()) return setError("Secret answer daaliye.");
-        if (password.length < 6) return setError("Naya password kam se kam 6 characters ka ho.");
         const rpc = supabase.rpc as unknown as (
           fn: string,
           args: Record<string, unknown>,
@@ -106,11 +172,16 @@ function AuthPage() {
       }
 
       if (mode === "signup") {
-        if (password.length < 6) return setError("Password kam se kam 6 characters ka ho.");
-        if (!answer.trim()) return setError("Secret answer daaliye — password bhoolne par yahi kaam aayega.");
+        const free = await checkUsernameFree(normalizeUsername(id));
+        if (free === false) {
+          setNameStatus("taken");
+          setFieldErrors({ username: "Yeh username pehle se le liya gaya hai — dusra try kijiye." });
+          return;
+        }
         const { data, error: err } = await supabase.auth.signUp({
           email: identifierToEmail(id),
           password,
+
           options: {
             data: {
               name: name.trim() || normalizeUsername(id),
@@ -174,39 +245,79 @@ function AuthPage() {
       </div>
 
       <div className="surface p-5">
-        <form onSubmit={submit} className="space-y-3">
+        <form onSubmit={submit} noValidate className="space-y-3">
           {mode === "signup" && (
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Aapka naam (display name)"
-              autoComplete="name"
-              className={inputClass}
-            />
+            <div>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Aapka naam (display name)"
+                autoComplete="name"
+                className={fieldErrors["name"] ? inputErrorClass : inputClass}
+              />
+              {fieldErrors["name"] && <FieldError>{fieldErrors["name"]}</FieldError>}
+            </div>
           )}
 
-          <input
-            required
-            id="username"
-            name="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-            autoComplete="username"
-            aria-label="Username"
-            className={inputClass}
-          />
+          <div>
+            <input
+              id="username"
+              name="username"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setFieldErrors((prev) => ({ ...prev, username: "" }));
+              }}
+              onBlur={() => {
+                if (mode === "signin" || !username.trim()) return;
+                const uErr = usernameError(username);
+                if (uErr) setFieldErrors((prev) => ({ ...prev, username: uErr }));
+              }}
+              placeholder="Username"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              aria-label="Username"
+              className={fieldErrors["username"] ? inputErrorClass : inputClass}
+            />
+            {fieldErrors["username"] ? (
+              <FieldError>{fieldErrors["username"]}</FieldError>
+            ) : mode === "signup" && nameStatus === "checking" ? (
+              <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" /> Checking username…
+              </p>
+            ) : mode === "signup" && nameStatus === "free" ? (
+              <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-success">
+                <CheckCircle2 className="h-3 w-3" /> Yeh username available hai
+              </p>
+            ) : mode === "signup" && nameStatus === "taken" ? (
+              <FieldError>Yeh username pehle se le liya gaya hai — dusra try kijiye.</FieldError>
+            ) : mode === "signup" ? (
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                3–20 characters — letters, numbers, . aur _
+              </p>
+            ) : null}
+          </div>
 
-          <input
-            type="password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder={mode === "forgot" ? "Naya password (min 6)" : "Password (min 6 characters)"}
-            autoComplete={mode === "signin" ? "current-password" : "new-password"}
-            className={inputClass}
-          />
+          <div>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setFieldErrors((prev) => ({ ...prev, password: "" }));
+              }}
+              onBlur={() => {
+                if (mode === "signin" || !password) return;
+                const pErr = passwordError(password, username);
+                if (pErr) setFieldErrors((prev) => ({ ...prev, password: pErr }));
+              }}
+              placeholder={mode === "forgot" ? "Naya password (min 6)" : "Password (min 6 characters)"}
+              autoComplete={mode === "signin" ? "current-password" : "new-password"}
+              className={fieldErrors["password"] ? inputErrorClass : inputClass}
+            />
+            {fieldErrors["password"] && <FieldError>{fieldErrors["password"]}</FieldError>}
+          </div>
 
           {mode === "signup" && (
             <>
@@ -222,25 +333,36 @@ function AuthPage() {
                   </option>
                 ))}
               </select>
-              <input
-                required
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Secret answer (yaad rakhiye)"
-                className={inputClass}
-              />
+              <div>
+                <input
+                  value={answer}
+                  onChange={(e) => {
+                    setAnswer(e.target.value);
+                    setFieldErrors((prev) => ({ ...prev, answer: "" }));
+                  }}
+                  placeholder="Secret answer (yaad rakhiye)"
+                  className={fieldErrors["answer"] ? inputErrorClass : inputClass}
+                />
+                {fieldErrors["answer"] && <FieldError>{fieldErrors["answer"]}</FieldError>}
+              </div>
             </>
           )}
 
           {mode === "forgot" && (
-            <input
-              required
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              placeholder="Secret answer"
-              className={inputClass}
-            />
+            <div>
+              <input
+                value={answer}
+                onChange={(e) => {
+                  setAnswer(e.target.value);
+                  setFieldErrors((prev) => ({ ...prev, answer: "" }));
+                }}
+                placeholder="Secret answer"
+                className={fieldErrors["answer"] ? inputErrorClass : inputClass}
+              />
+              {fieldErrors["answer"] && <FieldError>{fieldErrors["answer"]}</FieldError>}
+            </div>
           )}
+
 
           {mode === "signin" && (
             <button

@@ -474,6 +474,7 @@ export type Database = {
         Args: { _answer_hash: string; _new_password: string; _username: string }
         Returns: boolean
       }
+      username_available: { Args: { _username: string }; Returns: boolean }
     }
     Enums: {
       app_role: "owner" | "admin" | "student"
