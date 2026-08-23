@@ -240,39 +240,79 @@ function AuthPage() {
       </div>
 
       <div className="surface p-5">
-        <form onSubmit={submit} className="space-y-3">
+        <form onSubmit={submit} noValidate className="space-y-3">
           {mode === "signup" && (
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Aapka naam (display name)"
-              autoComplete="name"
-              className={inputClass}
-            />
+            <div>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Aapka naam (display name)"
+                autoComplete="name"
+                className={fieldErrors["name"] ? inputErrorClass : inputClass}
+              />
+              {fieldErrors["name"] && <FieldError>{fieldErrors["name"]}</FieldError>}
+            </div>
           )}
 
-          <input
-            required
-            id="username"
-            name="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-            autoComplete="username"
-            aria-label="Username"
-            className={inputClass}
-          />
+          <div>
+            <input
+              id="username"
+              name="username"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setFieldErrors((prev) => ({ ...prev, username: "" }));
+              }}
+              onBlur={() => {
+                if (mode === "signin" || !username.trim()) return;
+                const uErr = usernameError(username);
+                if (uErr) setFieldErrors((prev) => ({ ...prev, username: uErr }));
+              }}
+              placeholder="Username"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              aria-label="Username"
+              className={fieldErrors["username"] ? inputErrorClass : inputClass}
+            />
+            {fieldErrors["username"] ? (
+              <FieldError>{fieldErrors["username"]}</FieldError>
+            ) : mode === "signup" && nameStatus === "checking" ? (
+              <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" /> Checking username…
+              </p>
+            ) : mode === "signup" && nameStatus === "free" ? (
+              <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-success">
+                <CheckCircle2 className="h-3 w-3" /> Yeh username available hai
+              </p>
+            ) : mode === "signup" && nameStatus === "taken" ? (
+              <FieldError>Yeh username pehle se le liya gaya hai — dusra try kijiye.</FieldError>
+            ) : mode === "signup" ? (
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                3–20 characters — letters, numbers, . aur _
+              </p>
+            ) : null}
+          </div>
 
-          <input
-            type="password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder={mode === "forgot" ? "Naya password (min 6)" : "Password (min 6 characters)"}
-            autoComplete={mode === "signin" ? "current-password" : "new-password"}
-            className={inputClass}
-          />
+          <div>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setFieldErrors((prev) => ({ ...prev, password: "" }));
+              }}
+              onBlur={() => {
+                if (mode === "signin" || !password) return;
+                const pErr = passwordError(password, username);
+                if (pErr) setFieldErrors((prev) => ({ ...prev, password: pErr }));
+              }}
+              placeholder={mode === "forgot" ? "Naya password (min 6)" : "Password (min 6 characters)"}
+              autoComplete={mode === "signin" ? "current-password" : "new-password"}
+              className={fieldErrors["password"] ? inputErrorClass : inputClass}
+            />
+            {fieldErrors["password"] && <FieldError>{fieldErrors["password"]}</FieldError>}
+          </div>
 
           {mode === "signup" && (
             <>
@@ -288,25 +328,36 @@ function AuthPage() {
                   </option>
                 ))}
               </select>
-              <input
-                required
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Secret answer (yaad rakhiye)"
-                className={inputClass}
-              />
+              <div>
+                <input
+                  value={answer}
+                  onChange={(e) => {
+                    setAnswer(e.target.value);
+                    setFieldErrors((prev) => ({ ...prev, answer: "" }));
+                  }}
+                  placeholder="Secret answer (yaad rakhiye)"
+                  className={fieldErrors["answer"] ? inputErrorClass : inputClass}
+                />
+                {fieldErrors["answer"] && <FieldError>{fieldErrors["answer"]}</FieldError>}
+              </div>
             </>
           )}
 
           {mode === "forgot" && (
-            <input
-              required
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              placeholder="Secret answer"
-              className={inputClass}
-            />
+            <div>
+              <input
+                value={answer}
+                onChange={(e) => {
+                  setAnswer(e.target.value);
+                  setFieldErrors((prev) => ({ ...prev, answer: "" }));
+                }}
+                placeholder="Secret answer"
+                className={fieldErrors["answer"] ? inputErrorClass : inputClass}
+              />
+              {fieldErrors["answer"] && <FieldError>{fieldErrors["answer"]}</FieldError>}
+            </div>
           )}
+
 
           {mode === "signin" && (
             <button
