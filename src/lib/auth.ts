@@ -14,20 +14,41 @@ function emit() {
   listeners.forEach((l) => l());
 }
 
+/**
+ * Makes sure the signed-in user has a profile row and the student role.
+ * Username accounts carry their details in auth metadata, so this runs on
+ * every fresh session instead of relying on email confirmation.
+ */
+async function ensureProfile(next: Session) {
+  const meta = (next.user.user_metadata ?? {}) as Record<string, unknown>;
+  const str = (key: string) => (typeof meta[key] === "string" ? (meta[key] as string) : null);
+  const rpc = supabase.rpc as unknown as (
+    fn: string,
+    args: Record<string, unknown>,
+  ) => Promise<{ error: unknown }>;
+  await rpc("bootstrap_profile", {
+    _name: str("name"),
+    _username: str("username") ?? next.user.email?.split("@")[0] ?? null,
+    _recovery_question: str("recovery_question"),
+    _recovery_answer_hash: str("recovery_answer_hash"),
+  });
+}
+
 function handle(next: Session | null) {
   session = next;
   ready = true;
   emit();
   const userId = next?.user.id ?? null;
-  if (userId && userId !== syncedUserId) {
+  if (userId && next && userId !== syncedUserId) {
     syncedUserId = userId;
-    void syncUser(userId);
+    void ensureProfile(next).then(() => syncUser(userId));
   } else if (!userId && syncedUserId) {
     syncedUserId = null;
     stopSync();
     clearLocalState();
   }
 }
+
 
 function start() {
   if (started || typeof window === "undefined") return;
