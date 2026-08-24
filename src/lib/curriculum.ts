@@ -39,11 +39,18 @@ export const SUBJECTS: Subject[] = [
       { id: "acids-bases-salts", name: "Acids, Bases and Salts", topics: ["pH scale", "Indicators", "Common salts"] },
       { id: "metals-nonmetals", name: "Metals and Non-metals", topics: ["Reactivity series", "Extraction", "Alloys"] },
       { id: "carbon-compounds", name: "Carbon and its Compounds", topics: ["Covalent bonds", "Homologous series", "Soaps"] },
+      { id: "periodic-classification", name: "Periodic Classification of Elements", topics: ["Modern periodic table", "Trends in properties"] },
       { id: "life-processes", name: "Life Processes", topics: ["Nutrition", "Respiration", "Transportation", "Excretion"] },
       { id: "control-coordination", name: "Control and Coordination", topics: ["Reflex arc", "Hormones", "Tropisms"] },
+      { id: "reproduction", name: "How do Organisms Reproduce?", topics: ["Asexual reproduction", "Reproduction in plants", "Human reproduction"] },
+      { id: "heredity-evolution", name: "Heredity and Evolution", topics: ["Mendel's laws", "Sex determination", "Evolution"] },
       { id: "light", name: "Light — Reflection and Refraction", topics: ["Mirror formula", "Lens formula", "Refractive index"] },
+      { id: "human-eye", name: "The Human Eye and the Colourful World", topics: ["Eye defects", "Dispersion", "Scattering"] },
       { id: "electricity", name: "Electricity", topics: ["Ohm's law", "Resistors", "Heating effect"] },
       { id: "magnetic-effects", name: "Magnetic Effects of Current", topics: ["Field lines", "Fleming's rules", "Induction"] },
+      { id: "energy-sources", name: "Sources of Energy", topics: ["Conventional sources", "Renewable energy"] },
+      { id: "our-environment", name: "Our Environment", topics: ["Food chains", "Ozone depletion", "Waste management"] },
+      { id: "natural-resources", name: "Management of Natural Resources", topics: ["Forests and wildlife", "Water harvesting", "Coal and petroleum"] },
     ],
   },
   {
@@ -60,7 +67,10 @@ export const SUBJECTS: Subject[] = [
       { id: "triangles", name: "Triangles", topics: ["Similarity", "BPT", "Pythagoras"] },
       { id: "coordinate-geometry", name: "Coordinate Geometry", topics: ["Distance formula", "Section formula"] },
       { id: "trigonometry", name: "Introduction to Trigonometry", topics: ["Ratios", "Identities", "Standard angles"] },
+      { id: "trig-applications", name: "Some Applications of Trigonometry", topics: ["Heights and distances", "Angle of elevation"] },
       { id: "circles", name: "Circles", topics: ["Tangents", "Theorems"] },
+      { id: "constructions", name: "Constructions", topics: ["Division of a line segment", "Tangent construction"] },
+      { id: "areas-circles", name: "Areas Related to Circles", topics: ["Sector area", "Segment area", "Perimeter"] },
       { id: "surface-areas", name: "Surface Areas and Volumes", topics: ["Combined solids", "Conversion"] },
       { id: "statistics", name: "Statistics", topics: ["Mean", "Median", "Mode"] },
       { id: "probability", name: "Probability", topics: ["Simple events", "Dice & cards"] },
@@ -365,6 +375,39 @@ export function getSubject(id: string) {
   return SUBJECTS.find((s) => s.id === id);
 }
 
+
+
+/**
+ * Question banks are imported with all kinds of chapter labels — the NCERT
+ * chapter number ("7"), the chapter name, or the slug we use internally.
+ * This maps any of those onto the real chapter id so chapter-wise filters
+ * (custom tests, chapter quizzes) never leak questions from other chapters.
+ */
+export function resolveChapterId(subjectId: string, raw: string): string {
+  const subject = getSubject(subjectId);
+  const value = (raw ?? "").trim();
+  if (!subject || !value) return value;
+
+  const slug = value.toLowerCase();
+  if (subject.chapters.some((c) => c.id === slug)) return slug;
+
+  const num = /^(?:ch(?:apter)?[\s-]*)?(\d{1,2})$/.exec(slug);
+  if (num) {
+    const idx = Number(num[1]) - 1;
+    const byNumber = subject.chapters[idx];
+    if (byNumber) return byNumber.id;
+    return slug;
+  }
+
+  const norm = (t: string) => t.toLowerCase().replace(/[^a-z0-9\u0900-\u097F]+/g, "");
+  const target = norm(value);
+  const byName = subject.chapters.find((c) => norm(c.name) === target || norm(c.id) === target);
+  return byName ? byName.id : slug;
+}
+
+export function isKnownChapter(subjectId: string, chapterId: string): boolean {
+  return !!getSubject(subjectId)?.chapters.some((c) => c.id === chapterId);
+}
 
 export function questionsFor(opts: { subjectId?: string; chapterId?: string; difficulty?: Difficulty | "mixed" }) {
   return QUESTIONS.filter((q) => {
