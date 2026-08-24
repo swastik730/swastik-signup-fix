@@ -103,7 +103,7 @@ function SubjectPage() {
                 search={{
                   test: t.id,
                   subject: subject.id,
-                  chapter: "all" as string,
+                  chapter: "all",
                   difficulty: t.difficulty,
                   count: t.questionIds.length,
                   minutes: t.minutes,
