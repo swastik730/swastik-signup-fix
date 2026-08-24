@@ -47,7 +47,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col">
+    <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col md:max-w-3xl lg:max-w-4xl">
       <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur-lg">
         <div className="flex items-center justify-between px-4 py-3">
           {title ? (
@@ -117,7 +117,7 @@ export function AppShell({ children, title }: { children: ReactNode; title?: str
 
       <AdInterstitial />
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-2xl border-t border-border/70 bg-card/95 shadow-[var(--shadow-float)] backdrop-blur-lg">
+      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-2xl border-t md:max-w-3xl lg:max-w-4xl border-border/70 bg-card/95 shadow-[var(--shadow-float)] backdrop-blur-lg">
         <AdBanner />
 
         <ul className="grid grid-cols-6">

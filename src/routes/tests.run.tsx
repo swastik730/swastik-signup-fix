@@ -90,7 +90,17 @@ function TestRun() {
       const restored = saved.questionIds
         .map((id) => byId.get(id))
         .filter((q): q is Question => !!q);
-      if (restored.length === saved.questionIds.length) {
+      const restoredValid = search.test
+        ? restored
+        : filterPool(restored, {
+            subjectId: search.subject,
+            chapterId: search.chapter,
+            difficulty: search.difficulty,
+          });
+      if (
+        restored.length === saved.questionIds.length &&
+        restoredValid.length === restored.length
+      ) {
         setPaper({ key: runKey, questions: dedupeQuestions(restored), saved });
         return;
       }
@@ -114,6 +124,13 @@ function TestRun() {
         seenRef.current,
         seedRef.current || 1,
       );
+      // Safety net: a paper can never contain a question outside the chosen
+      // subject / chapter / difficulty, whatever the bank labels say.
+      built = filterPool(built, {
+        subjectId: search.subject,
+        chapterId: search.chapter,
+        difficulty: search.difficulty,
+      });
     }
 
     setPaper({ key: runKey, questions: dedupeQuestions(built), saved: null });

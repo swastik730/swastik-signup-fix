@@ -7,6 +7,7 @@ import { filterPool, useQuestionPool } from "@/lib/questions";
 import { buildSeries } from "@/lib/testEngine";
 import { useAppState } from "@/lib/store";
 import { PageHero } from "@/components/PageHero";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SUBJECT_ICONS } from "@/lib/subjectIcons";
 import heroTests from "@/assets/hero-tests.webp";
 import tilesTests from "@/assets/tiles/tests.webp";
@@ -102,7 +103,7 @@ function TestsPage() {
       <p className="mb-3 text-xs text-muted-foreground">
         Tests are generated automatically from the question bank — no question repeats across any two tests.
       </p>
-      <div className="mb-6 space-y-3">
+      <div className="mb-6 space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
         {loading ? (
           <p className="surface flex items-center justify-center gap-2 p-5 text-xs text-muted-foreground">
             <Loader2 className="h-3.5 w-3.5 animate-spin" /> Building your test series…
@@ -176,37 +177,42 @@ function TestsPage() {
       </h2>
       <div className="surface space-y-4 p-5">
         <Field label="Subject">
-          <select
+          <Select
             value={subjectId}
-            onChange={(e) => {
-              setSubjectId(e.target.value);
+            onValueChange={(v) => {
+              setSubjectId(v);
               setChapterId("all");
             }}
-            className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm"
           >
-            <option value="mixed">All subjects</option>
-            {SUBJECTS.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="h-11 w-full rounded-xl text-sm" aria-label="Subject">
+              <SelectValue placeholder="All subjects" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="mixed">All subjects</SelectItem>
+              {SUBJECTS.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
 
         {chapters.length > 0 && (
           <Field label="Chapter">
-            <select
-              value={chapterId}
-              onChange={(e) => setChapterId(e.target.value)}
-              className="h-11 w-full rounded-xl border border-input bg-background px-3 text-sm"
-            >
-              <option value="all">All chapters</option>
-              {chapters.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            <Select value={chapterId} onValueChange={setChapterId}>
+              <SelectTrigger className="h-11 w-full rounded-xl text-sm" aria-label="Chapter">
+                <SelectValue placeholder="All chapters" />
+              </SelectTrigger>
+              <SelectContent className="max-h-72">
+                <SelectItem value="all">All chapters</SelectItem>
+                {chapters.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
         )}
 
