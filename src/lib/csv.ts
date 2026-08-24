@@ -1,3 +1,4 @@
+import { isKnownChapter, resolveChapterId } from "./curriculum";
 /** Minimal RFC4180-ish CSV parser (handles quotes, commas and newlines inside quotes). */
 export function parseCsv(text: string): string[][] {
   const rows: string[][] = [];
@@ -168,7 +169,6 @@ export function validateRows(rows: string[][], knownSubjects: string[]): Validat
  * Auto review
  * ------------------------------------------------------------------ */
 
-import { isKnownChapter, resolveChapterId } from "./curriculum";
 
 export type ReviewResult = { ok: boolean; reasons: string[]; chapter_id: string };
 
