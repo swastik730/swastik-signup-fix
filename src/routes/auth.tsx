@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CheckCircle2, CloudUpload, Loader2, ShieldCheck } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/lib/supabase";
 import { BrandMark } from "@/components/AppShell";
 import { useSession } from "@/lib/auth";
@@ -321,18 +322,18 @@ function AuthPage() {
 
           {mode === "signup" && (
             <>
-              <select
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                className={inputClass}
-                aria-label="Secret question"
-              >
-                {RECOVERY_QUESTIONS.map((q) => (
-                  <option key={q} value={q}>
-                    {q}
-                  </option>
-                ))}
-              </select>
+              <Select value={question} onValueChange={setQuestion}>
+                <SelectTrigger aria-label="Secret question" className="h-12 w-full rounded-xl text-sm">
+                  <SelectValue placeholder="Secret question" />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {RECOVERY_QUESTIONS.map((q) => (
+                    <SelectItem key={q} value={q}>
+                      {q}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <div>
                 <input
                   value={answer}

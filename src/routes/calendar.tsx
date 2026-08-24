@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { SUBJECTS } from "@/lib/curriculum";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAppState } from "@/lib/store";
 import { addScheduleItem, removeScheduleItem, useSchedule } from "@/lib/schedule";
 
@@ -197,18 +198,18 @@ function ScheduleForm({ date, onDone }: { date: string; onDone: () => void }) {
         aria-label="Schedule title"
         className="w-full rounded-2xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-primary"
       />
-      <select
-        value={subjectId}
-        onChange={(e) => setSubjectId(e.target.value)}
-        aria-label="Subject"
-        className="w-full rounded-2xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-primary"
-      >
-        {SUBJECTS.map((s) => (
-          <option key={s.id} value={s.id}>
-            {s.name}
-          </option>
-        ))}
-      </select>
+      <Select value={subjectId} onValueChange={setSubjectId}>
+        <SelectTrigger aria-label="Subject" className="h-11 w-full rounded-2xl text-sm">
+          <SelectValue placeholder="Subject" />
+        </SelectTrigger>
+        <SelectContent>
+          {SUBJECTS.map((s) => (
+            <SelectItem key={s.id} value={s.id}>
+              {s.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <div className="flex gap-3">
         <input
           type="time"
