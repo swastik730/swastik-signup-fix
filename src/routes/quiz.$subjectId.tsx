@@ -81,7 +81,10 @@ function QuizPage() {
         ? seededShuffle(filtered, 1).slice(0, 10)
         : pickFresh(filtered, 10, seenRef.current, seedRef.current);
 
-    setPaper({ key: runKey, questions: built });
+    // Safety net: chapter quizzes only ever show that chapter's questions.
+    const clean = filterPool(built, { subjectId, chapterId: chapter ?? "all", difficulty: "mixed" });
+
+    setPaper({ key: runKey, questions: clean });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, pool, runKey]);
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { QUESTIONS, type Difficulty, type Question } from "./curriculum";
+import { QUESTIONS, resolveChapterId, type Difficulty, type Question } from "./curriculum";
 
 export type BankStatus = "draft" | "review" | "published";
 
@@ -22,7 +22,7 @@ export function bankToQuestion(row: BankQuestion): Question {
   return {
     id: row.id,
     subjectId: row.subject_id,
-    chapterId: row.chapter_id,
+    chapterId: resolveChapterId(row.subject_id, row.chapter_id),
     difficulty: (["easy", "medium", "hard"].includes(row.difficulty)
       ? row.difficulty
       : "medium") as Difficulty,
