@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Download, Loader2, Upload, XCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { logAudit } from "@/lib/audit";
-import { CSV_TEMPLATE, parseCsv, validateRows, type ParsedQuestion, type RowIssue } from "@/lib/csv";
+import { CSV_TEMPLATE, autoReview, parseCsv, validateRows, type ParsedQuestion, type RowIssue } from "@/lib/csv";
 import { SUBJECTS } from "@/lib/curriculum";
 
 export const Route = createFileRoute("/owner/content")({
@@ -23,9 +23,12 @@ type BankRow = {
 type Summary = {
   fileName: string;
   inserted: number;
+  published: number;
+  held: number;
   duplicates: number;
   invalid: RowIssue[];
   fileDuplicates: RowIssue[];
+  reviewNotes: { question: string; reasons: string[] }[];
 };
 
 function OwnerContent() {
@@ -76,6 +79,9 @@ function OwnerContent() {
 
       let inserted = 0;
       let duplicates = 0;
+      let published = 0;
+      let held = 0;
+      const reviewNotes: { question: string; reasons: string[] }[] = [];
 
       if (result.valid.length > 0) {
         const hashes = result.valid.map((v) => v.content_hash);
@@ -93,32 +99,45 @@ function OwnerContent() {
         });
 
         for (let i = 0; i < fresh.length; i += 100) {
-          const chunk = fresh.slice(i, i + 100).map((v) => ({
-            subject_id: v.subject_id,
-            chapter_id: v.chapter_id,
-            difficulty: v.difficulty,
-            question: v.question,
-            options: v.options,
-            correct_index: v.correct_index,
-            explanation: v.explanation || null,
-            source: v.source || null,
-            content_hash: v.content_hash,
-            status: "review",
-          }));
+          const chunk = fresh.slice(i, i + 100).map((v) => {
+            // The app reviews every question itself: clean rows go live,
+            // doubtful ones wait in `review` with the reason listed below.
+            const verdict = autoReview(v);
+            if (verdict.ok) published += 1;
+            else {
+              held += 1;
+              if (reviewNotes.length < 20) reviewNotes.push({ question: v.question, reasons: verdict.reasons });
+            }
+            return {
+              subject_id: v.subject_id,
+              chapter_id: verdict.chapter_id,
+              difficulty: v.difficulty,
+              question: v.question,
+              options: v.options,
+              correct_index: v.correct_index,
+              explanation: v.explanation || null,
+              source: v.source || null,
+              content_hash: v.content_hash,
+              status: verdict.ok ? "published" : "review",
+            };
+          });
           const { error: insertError } = await supabase.from("questions").insert(chunk);
           if (insertError) throw new Error(insertError.message);
           inserted += chunk.length;
         }
 
-        await logAudit("content.import", { file: sourceName, inserted, duplicates });
+        await logAudit("content.import", { file: sourceName, inserted, duplicates, published, held });
       }
 
       setSummary({
         fileName: sourceName,
         inserted,
+        published,
+        held,
         duplicates,
         invalid: result.invalid,
         fileDuplicates: result.duplicateInFile,
+        reviewNotes,
       });
       await load();
     } catch (e) {
@@ -172,7 +191,8 @@ function OwnerContent() {
         <p className="text-xs text-muted-foreground">
           Build a sheet in Excel and save it as <b>CSV</b>. Columns: subject_id, chapter_id, difficulty, question,
           option_a-d, correct (A-D), explanation, source. Duplicate questions are skipped automatically and new
-          questions arrive with <b>review</b> status.
+          questions app khud review karta hai — sahi wale turant <b>publish</b> ho jaate hain, galat/adhoore
+          wale <b>review</b> me rukte hain with reason.
         </p>
         <div className="flex gap-2">
           <button
@@ -241,8 +261,18 @@ function OwnerContent() {
       {summary && (
         <div className="surface mb-4 p-5 text-xs">
           <p className="text-sm font-bold">{summary.fileName}</p>
-          <p className="mt-1 text-success">{summary.inserted} questions add hue (review me)</p>
+          <p className="mt-1 text-success">
+            {summary.inserted} questions add hue — {summary.published} auto-review pass karke live ho gaye
+          </p>
+          {summary.held > 0 && (
+            <p className="text-warning">{summary.held} questions review me roke gaye (neeche wajah dekhein)</p>
+          )}
           <p className="text-muted-foreground">{summary.duplicates} duplicate skip hue</p>
+          {summary.reviewNotes.map((n) => (
+            <p key={n.question} className="mt-1 text-warning">
+              <b>{n.question.slice(0, 70)}</b> — {n.reasons.join(", ")}
+            </p>
+          ))}
           {[...summary.invalid, ...summary.fileDuplicates].slice(0, 12).map((i) => (
             <p key={`${i.line}-${i.reason}`} className="mt-1 text-destructive">
               Line {i.line}: {i.reason}
