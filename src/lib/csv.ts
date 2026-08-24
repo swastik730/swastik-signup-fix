@@ -163,3 +163,39 @@ export function validateRows(rows: string[][], knownSubjects: string[]): Validat
 
   return { valid, invalid, duplicateInFile };
 }
+
+/* ------------------------------------------------------------------ *
+ * Auto review
+ * ------------------------------------------------------------------ */
+
+import { isKnownChapter, resolveChapterId } from "./curriculum";
+
+export type ReviewResult = { ok: boolean; reasons: string[]; chapter_id: string };
+
+/**
+ * The app's own quality check for a question before it goes live.
+ * Rows that pass are published straight away; the rest stay in `review`
+ * with a human-readable reason so the owner can fix them.
+ */
+export function autoReview(q: ParsedQuestion): ReviewResult {
+  const reasons: string[] = [];
+  const chapter_id = resolveChapterId(q.subject_id, q.chapter_id);
+
+  if (!isKnownChapter(q.subject_id, chapter_id)) {
+    reasons.push(`chapter "${q.chapter_id}" is not in the ${q.subject_id} syllabus`);
+  }
+  if (q.question.trim().length < 10) reasons.push("question is too short");
+  if (q.question.trim().length > 600) reasons.push("question is too long");
+
+  const opts = q.options.map((o) => normalise(o));
+  if (opts.some((o) => o.length === 0)) reasons.push("an option is empty");
+  if (new Set(opts).size !== opts.length) reasons.push("two options are identical");
+  if (q.options.some((o) => o.trim().length > 200)) reasons.push("an option is too long");
+  if (q.correct_index < 0 || q.correct_index > 3) reasons.push("correct answer is out of range");
+
+  // "all of the above" style options must sit last to make sense.
+  const trap = opts.findIndex((o) => o.startsWith("all of the above") || o.startsWith("none of the above"));
+  if (trap !== -1 && trap !== opts.length - 1) reasons.push("'all/none of the above' should be the last option");
+
+  return { ok: reasons.length === 0, reasons, chapter_id };
+}
